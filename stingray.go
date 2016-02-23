@@ -17,4 +17,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package stingray
 
-import _ "github.com/andreas-jonsson/go-stingray/tree/master/sjson"
+import _ "github.com/andreas-jonsson/go-stingray/sjson"
