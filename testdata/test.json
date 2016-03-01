@@ -1,0 +1,15 @@
+{
+	work = {
+		phone = 123,
+		vector = [0, 2, 4]
+	},
+
+	done = false,
+
+	name = "stingray",
+	"the key" = "squid"
+}
+
+"next object"
+
+[1, 2, 3]

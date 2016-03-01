@@ -16,3 +16,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package sjson
+
+import (
+	"os"
+	"testing"
+)
+
+func TestSJSON(t *testing.T) {
+	fp, err := os.Open("../testdata/test.json")
+	if err != nil {
+		t.Error(err)
+	}
+	defer fp.Close()
+
+	dec := NewDecoder(fp)
+
+	_, err = dec.Decode()
+	if err != nil {
+		t.Error(err)
+	}
+
+	v, err := dec.Decode()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if v.(string) != "next object" {
+		t.Fail()
+	}
+}
