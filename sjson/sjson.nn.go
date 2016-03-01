@@ -872,7 +872,10 @@ OUTER0:
 
 	return 0
 }
-func Decode(lex *Lexer) (interface{}, error) {
+
+type Value interface{}
+
+func Decode(lex *Lexer) (Value, error) {
 	var err error
 	v := func() interface{} {
 		defer func() {
