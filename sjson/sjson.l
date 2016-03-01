@@ -40,8 +40,10 @@ import (
     "fmt"
 )
 
+// Represents a SJSON value.
 type Value interface{}
 
+// Decodes a SJSON value from the stream.
 func Decode(lex *Lexer) (Value, error) {
     var err error
     v := func() interface{} {
