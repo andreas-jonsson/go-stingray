@@ -13,7 +13,7 @@
 /\{/    { return OBJECT_BEGIN }
 /\}/    { return OBJECT_END }
 
-/./     { panic(fmt.Errorf("unrecognized character: '%v' [%v : %v]", yylex.Text(), yylex.Line(), yylex.Column())) }
+/./     { panic(fmt.Errorf("unrecognized character: '%v'", yylex.Text())) }
 //
 
 /*
@@ -49,7 +49,7 @@ func (dec *Decoder) Decode() (interface{}, error) {
     v := func() interface{} {
         defer func() {
             if r := recover(); r != nil {
-                err = fmt.Errorf("%v", r)
+                err = fmt.Errorf("%v [%v:%v]", r, dec.lex.Line(), dec.lex.Column())
             }
         }()
         yyParse(dec.lex)

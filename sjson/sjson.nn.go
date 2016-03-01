@@ -861,7 +861,7 @@ OUTER0:
 			}
 		case 13:
 			{
-				panic(fmt.Errorf("unrecognized character: '%v' [%v : %v]", yylex.Text(), yylex.Line(), yylex.Column()))
+				panic(fmt.Errorf("unrecognized character: '%v'", yylex.Text()))
 			}
 		default:
 			break OUTER0
@@ -882,7 +882,7 @@ func (dec *Decoder) Decode() (interface{}, error) {
 	v := func() interface{} {
 		defer func() {
 			if r := recover(); r != nil {
-				err = fmt.Errorf("%v", r)
+				err = fmt.Errorf("%v [%v:%v]", r, dec.lex.Line(), dec.lex.Column())
 			}
 		}()
 		yyParse(dec.lex)
