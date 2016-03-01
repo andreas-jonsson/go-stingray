@@ -28,33 +28,33 @@ type yySymType struct {
 	v   interface{}
 }
 
-const NUMBER = 57346
-const STRING = 57347
-const IDENTIFIER = 57348
-const BOOLEAN = 57349
-const NULL = 57350
-const OBJECT_BEGIN = 57351
-const OBJECT_END = 57352
-const ARRAY_BEGIN = 57353
-const ARRAY_END = 57354
-const COMMA = 57355
-const EQUAL = 57356
+const _NUMBER = 57346
+const _STRING = 57347
+const _IDENTIFIER = 57348
+const _BOOLEAN = 57349
+const _NULL = 57350
+const _OBJECT_BEGIN = 57351
+const _OBJECT_END = 57352
+const _ARRAY_BEGIN = 57353
+const _ARRAY_END = 57354
+const _COMMA = 57355
+const _EQUAL = 57356
 
 var yyToknames = [...]string{
 	"$end",
 	"error",
 	"$unk",
-	"NUMBER",
-	"STRING",
-	"IDENTIFIER",
-	"BOOLEAN",
-	"NULL",
-	"OBJECT_BEGIN",
-	"OBJECT_END",
-	"ARRAY_BEGIN",
-	"ARRAY_END",
-	"COMMA",
-	"EQUAL",
+	"_NUMBER",
+	"_STRING",
+	"_IDENTIFIER",
+	"_BOOLEAN",
+	"_NULL",
+	"_OBJECT_BEGIN",
+	"_OBJECT_END",
+	"_ARRAY_BEGIN",
+	"_ARRAY_END",
+	"_COMMA",
+	"_EQUAL",
 }
 var yyStatenames = [...]string{}
 

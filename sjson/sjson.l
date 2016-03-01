@@ -1,17 +1,17 @@
 /[ \t\n]/               { }
-/[0-9]+/                { i, _ := strconv.Atoi(yylex.Text()); lval.v = float64(i); return NUMBER }
-/[0-9]+\.[0-9]*/        { lval.v, _ = strconv.ParseFloat(yylex.Text(), 64); return NUMBER }
-/true|false/            { lval.v = (yylex.Text() == "true"); return BOOLEAN }
-/null/                  { lval.v = nil; return NULL }
-/[a-z][a-z0-9]*/        { lval.v = yylex.Text(); return IDENTIFIER }
-/\"([^\\\"]|\\.)*\"/    { t := yylex.Text(); lval.v = t[1:len(t) - 1]; return STRING }
+/[0-9]+/                { i, _ := strconv.Atoi(yylex.Text()); lval.v = float64(i); return _NUMBER }
+/[0-9]+\.[0-9]*/        { lval.v, _ = strconv.ParseFloat(yylex.Text(), 64); return _NUMBER }
+/true|false/            { lval.v = (yylex.Text() == "true"); return _BOOLEAN }
+/null/                  { lval.v = nil; return _NULL }
+/[a-z][a-z0-9]*/        { lval.v = yylex.Text(); return _IDENTIFIER }
+/\"([^\\\"]|\\.)*\"/    { t := yylex.Text(); lval.v = t[1:len(t) - 1]; return _STRING }
 
-/=/     { return EQUAL }
-/,/     { return COMMA }
-/\[/    { return ARRAY_BEGIN }
-/\]/    { return ARRAY_END }
-/\{/    { return OBJECT_BEGIN }
-/\}/    { return OBJECT_END }
+/=/     { return _EQUAL }
+/,/     { return _COMMA }
+/\[/    { return _ARRAY_BEGIN }
+/\]/    { return _ARRAY_END }
+/\{/    { return _OBJECT_BEGIN }
+/\}/    { return _OBJECT_END }
 
 /./     { panic(fmt.Errorf("unrecognized character: '%v'", yylex.Text())) }
 //
@@ -40,24 +40,16 @@ import (
     "fmt"
 )
 
-type Decoder struct {
-    lex *Lexer
-}
-
-func (dec *Decoder) Decode() (interface{}, error) {
+func Decode(lex *Lexer) (interface{}, error) {
     var err error
     v := func() interface{} {
         defer func() {
             if r := recover(); r != nil {
-                err = fmt.Errorf("%v [%v:%v]", r, dec.lex.Line(), dec.lex.Column())
+                err = fmt.Errorf("%v [%v:%v]", r, lex.Line(), lex.Column())
             }
         }()
-        yyParse(dec.lex)
-        return dec.lex.parseResult
+        yyParse(lex)
+        return lex.parseResult
     }()
     return v, err
-}
-
-func NewDecoder(reader io.Reader) *Decoder {
-    return &Decoder{NewLexer(reader)}
 }

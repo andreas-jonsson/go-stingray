@@ -807,57 +807,57 @@ OUTER0:
 			{
 				i, _ := strconv.Atoi(yylex.Text())
 				lval.v = float64(i)
-				return NUMBER
+				return _NUMBER
 			}
 		case 2:
 			{
 				lval.v, _ = strconv.ParseFloat(yylex.Text(), 64)
-				return NUMBER
+				return _NUMBER
 			}
 		case 3:
 			{
 				lval.v = (yylex.Text() == "true")
-				return BOOLEAN
+				return _BOOLEAN
 			}
 		case 4:
 			{
 				lval.v = nil
-				return NULL
+				return _NULL
 			}
 		case 5:
 			{
 				lval.v = yylex.Text()
-				return IDENTIFIER
+				return _IDENTIFIER
 			}
 		case 6:
 			{
 				t := yylex.Text()
 				lval.v = t[1 : len(t)-1]
-				return STRING
+				return _STRING
 			}
 		case 7:
 			{
-				return EQUAL
+				return _EQUAL
 			}
 		case 8:
 			{
-				return COMMA
+				return _COMMA
 			}
 		case 9:
 			{
-				return ARRAY_BEGIN
+				return _ARRAY_BEGIN
 			}
 		case 10:
 			{
-				return ARRAY_END
+				return _ARRAY_END
 			}
 		case 11:
 			{
-				return OBJECT_BEGIN
+				return _OBJECT_BEGIN
 			}
 		case 12:
 			{
-				return OBJECT_END
+				return _OBJECT_END
 			}
 		case 13:
 			{
@@ -872,25 +872,16 @@ OUTER0:
 
 	return 0
 }
-
-type Decoder struct {
-	lex *Lexer
-}
-
-func (dec *Decoder) Decode() (interface{}, error) {
+func Decode(lex *Lexer) (interface{}, error) {
 	var err error
 	v := func() interface{} {
 		defer func() {
 			if r := recover(); r != nil {
-				err = fmt.Errorf("%v [%v:%v]", r, dec.lex.Line(), dec.lex.Column())
+				err = fmt.Errorf("%v [%v:%v]", r, lex.Line(), lex.Column())
 			}
 		}()
-		yyParse(dec.lex)
-		return dec.lex.parseResult
+		yyParse(lex)
+		return lex.parseResult
 	}()
 	return v, err
-}
-
-func NewDecoder(reader io.Reader) *Decoder {
-	return &Decoder{NewLexer(reader)}
 }

@@ -23,41 +23,41 @@ package sjson
 	v interface{}
 }
 
-%token NUMBER STRING IDENTIFIER BOOLEAN NULL
+%token _NUMBER _STRING _IDENTIFIER _BOOLEAN _NULL
 
-%left OBJECT_BEGIN OBJECT_END ARRAY_BEGIN ARRAY_END
-%left COMMA EQUAL
+%left _OBJECT_BEGIN _OBJECT_END _ARRAY_BEGIN _ARRAY_END
+%left _COMMA _EQUAL
 
 %%
 
-START 		: VALUE 							{ yylex.(*Lexer).parseResult = $1.v; return 0 }
+START 		: _VALUE 								{ yylex.(*Lexer).parseResult = $1.v; return 0 }
 			;
 
-OBJECT 		: OBJECT_BEGIN OBJECT_END 			{ $$.v = make(map[string]interface{}) }
-			| OBJECT_BEGIN MEMBERS OBJECT_END 	{ $$ = $2 }
+_OBJECT 	: _OBJECT_BEGIN _OBJECT_END 			{ $$.v = make(map[string]interface{}) }
+			| _OBJECT_BEGIN _MEMBERS _OBJECT_END 	{ $$ = $2 }
 			;
 
-MEMBERS 	: PAIR 								{ m := make(map[string]interface{}); p := $1.v.([2]interface{}); m[p[0].(string)] = p[1]; $$.v = m }
-			| MEMBERS COMMA PAIR 				{ m := $1.v.(map[string]interface{}); p := $3.v.([2]interface{}); m[p[0].(string)] = p[1] }
+_MEMBERS 	: _PAIR 								{ m := make(map[string]interface{}); p := $1.v.([2]interface{}); m[p[0].(string)] = p[1]; $$.v = m }
+			| _MEMBERS _COMMA _PAIR 				{ m := $1.v.(map[string]interface{}); p := $3.v.([2]interface{}); m[p[0].(string)] = p[1] }
 			;
 
-PAIR 		: STRING EQUAL VALUE 				{ $$.v = [2]interface{}{$1.v, $3.v} }
-			| IDENTIFIER EQUAL VALUE 			{ $$.v = [2]interface{}{$1.v, $3.v} }
+_PAIR 		: _STRING _EQUAL _VALUE 				{ $$.v = [2]interface{}{$1.v, $3.v} }
+			| _IDENTIFIER _EQUAL _VALUE 			{ $$.v = [2]interface{}{$1.v, $3.v} }
 			;
 
-ARRAY 		: ARRAY_BEGIN ARRAY_END  			{ $$.v = make([]interface{}, 0) }
-			| ARRAY_BEGIN ELEMENTS ARRAY_END 	{ $$ = $2 }
+_ARRAY 		: _ARRAY_BEGIN _ARRAY_END  				{ $$.v = make([]interface{}, 0) }
+			| _ARRAY_BEGIN _ELEMENTS _ARRAY_END 	{ $$ = $2 }
 			;
 
-ELEMENTS	: VALUE 							{ s := make([]interface{}, 0, 1); s = append(s, $1.v); $$.v = s }
-			| ELEMENTS COMMA VALUE 				{ $$.v = append($1.v.([]interface{}), $3.v) }
+_ELEMENTS	: _VALUE 								{ s := make([]interface{}, 0, 1); s = append(s, $1.v); $$.v = s }
+			| _ELEMENTS _COMMA _VALUE 				{ $$.v = append($1.v.([]interface{}), $3.v) }
 			;
 
-VALUE		: STRING
-			| NUMBER
-			| BOOLEAN
-			| NULL
-			| OBJECT
-			| ARRAY 							{ $$ = $1 }
+_VALUE		: _STRING
+			| _NUMBER
+			| _BOOLEAN
+			| _NULL
+			| _OBJECT
+			| _ARRAY 								{ $$ = $1 }
 			;
 %%

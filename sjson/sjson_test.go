@@ -29,14 +29,14 @@ func TestSJSON(t *testing.T) {
 	}
 	defer fp.Close()
 
-	dec := NewDecoder(fp)
+	lex := NewLexer(fp)
 
-	_, err = dec.Decode()
+	_, err = Decode(lex)
 	if err != nil {
 		t.Error(err)
 	}
 
-	v, err := dec.Decode()
+	v, err := Decode(lex)
 	if err != nil {
 		t.Error(err)
 	}
