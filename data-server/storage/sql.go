@@ -1,3 +1,5 @@
+// +build sql
+
 /*
 Copyright (C) 2015-2016 Andreas T Jonsson
 

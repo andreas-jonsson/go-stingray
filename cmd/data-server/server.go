@@ -53,7 +53,7 @@ func init() {
 		flag.PrintDefaults()
 	}
 
-	flag.StringVar(&driverFlag, "driver", "sqlite3", "driver type, (sqlite3, mysql, bolt, ram)")
+	flag.StringVar(&driverFlag, "driver", "bolt", "driver type, (bolt, sqlite3, mysql, ram)")
 	flag.StringVar(&sourceFlag, "source", "cache.db", "database source specifier")
 	flag.BoolVar(&locklessFlag, "lockless", false, "access database from multiple threads")
 	flag.BoolVar(&broadcastFlag, "broadcast", true, "respond to broadcast messages")
@@ -67,13 +67,7 @@ func main() {
 	setupSignals()
 
 	log.Println("opening database:", driverFlag, sourceFlag, locklessFlag)
-	if driverFlag == "ram" {
-		database = storage.NewRAMDatabase()
-	} else if driverFlag == "bolt" {
-		database = storage.NewBoltDatabase(sourceFlag)
-	} else {
-		database = storage.NewSQLDatabase(driverFlag, sourceFlag, locklessFlag)
-	}
+	database := storage.NewDatabase(driverFlag, sourceFlag, locklessFlag)
 
 	defer func() {
 		database.Close()

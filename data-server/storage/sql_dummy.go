@@ -1,3 +1,5 @@
+// -build sql
+
 /*
 Copyright (C) 2015-2016 Andreas T Jonsson
 
@@ -17,26 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package storage
 
-type Database interface {
-	Close()
-	Open() (Session, error)
-}
-
-type Session interface {
-	Close()
-	Load(id uint64, data []byte) []byte
-	Store(id uint64, data []byte)
-}
-
-func NewDatabase(driverFlag, sourceFlag string, locklessFlag bool) Database {
-	switch driverFlag {
-	case "ram":
-		return NewRAMDatabase()
-	case "mysql", "sqlite3":
-		return NewSQLDatabase(driverFlag, sourceFlag, locklessFlag)
-	case "bolt":
-		return NewBoltDatabase(sourceFlag)
-	default:
-		panic("Invalid database driver!")
-	}
+func NewSQLDatabase(driver string, con string, lockless bool) Database {
+	panic("No SQL driver installed!")
 }
