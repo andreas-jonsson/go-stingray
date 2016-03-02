@@ -1,4 +1,4 @@
-//line sjson.y:1
+//line decode.y:1
 
 /*
 Copyright (C) 2016 Andreas T Jonsson
@@ -21,11 +21,11 @@ package sjson
 
 import __yyfmt__ "fmt"
 
-//line sjson.y:19
-//line sjson.y:22
+//line decode.y:19
+//line decode.y:22
 type yySymType struct {
 	yys int
-	v   interface{}
+	v   Value
 }
 
 const _NUMBER = 57346
@@ -62,7 +62,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line sjson.y:63
+//line decode.y:63
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -470,81 +470,81 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line sjson.y:33
+		//line decode.y:33
 		{
 			yylex.(*Lexer).parseResult = yyDollar[1].v
 			return 0
 		}
 	case 2:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line sjson.y:36
+		//line decode.y:36
 		{
-			yyVAL.v = make(map[string]interface{})
+			yyVAL.v = make(map[string]Value)
 		}
 	case 3:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line sjson.y:37
+		//line decode.y:37
 		{
 			yyVAL = yyDollar[2]
 		}
 	case 4:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line sjson.y:40
+		//line decode.y:40
 		{
-			m := make(map[string]interface{})
-			p := yyDollar[1].v.([2]interface{})
+			m := make(map[string]Value)
+			p := yyDollar[1].v.([2]Value)
 			m[p[0].(string)] = p[1]
 			yyVAL.v = m
 		}
 	case 5:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line sjson.y:41
+		//line decode.y:41
 		{
-			m := yyDollar[1].v.(map[string]interface{})
-			p := yyDollar[3].v.([2]interface{})
+			m := yyDollar[1].v.(map[string]Value)
+			p := yyDollar[3].v.([2]Value)
 			m[p[0].(string)] = p[1]
 		}
 	case 6:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line sjson.y:44
+		//line decode.y:44
 		{
-			yyVAL.v = [2]interface{}{yyDollar[1].v, yyDollar[3].v}
+			yyVAL.v = [2]Value{yyDollar[1].v, yyDollar[3].v}
 		}
 	case 7:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line sjson.y:45
+		//line decode.y:45
 		{
-			yyVAL.v = [2]interface{}{yyDollar[1].v, yyDollar[3].v}
+			yyVAL.v = [2]Value{yyDollar[1].v, yyDollar[3].v}
 		}
 	case 8:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line sjson.y:48
+		//line decode.y:48
 		{
-			yyVAL.v = make([]interface{}, 0)
+			yyVAL.v = make([]Value, 0)
 		}
 	case 9:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line sjson.y:49
+		//line decode.y:49
 		{
 			yyVAL = yyDollar[2]
 		}
 	case 10:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line sjson.y:52
+		//line decode.y:52
 		{
-			s := make([]interface{}, 0, 1)
+			s := make([]Value, 0, 1)
 			s = append(s, yyDollar[1].v)
 			yyVAL.v = s
 		}
 	case 11:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line sjson.y:53
+		//line decode.y:53
 		{
-			yyVAL.v = append(yyDollar[1].v.([]interface{}), yyDollar[3].v)
+			yyVAL.v = append(yyDollar[1].v.([]Value), yyDollar[3].v)
 		}
 	case 17:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line sjson.y:61
+		//line decode.y:61
 		{
 			yyVAL = yyDollar[1]
 		}

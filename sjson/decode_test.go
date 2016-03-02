@@ -22,7 +22,7 @@ import (
 	"testing"
 )
 
-func TestSJSON(t *testing.T) {
+func TestDecode(t *testing.T) {
 	fp, err := os.Open("../testdata/test.json")
 	if err != nil {
 		t.Error(err)

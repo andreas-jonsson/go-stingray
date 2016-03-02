@@ -20,7 +20,7 @@ package sjson
 %}
 
 %union{
-	v interface{}
+	v Value
 }
 
 %token _NUMBER _STRING _IDENTIFIER _BOOLEAN _NULL
@@ -33,24 +33,24 @@ package sjson
 START 		: _VALUE 								{ yylex.(*Lexer).parseResult = $1.v; return 0 }
 			;
 
-_OBJECT 	: _OBJECT_BEGIN _OBJECT_END 			{ $$.v = make(map[string]interface{}) }
+_OBJECT 	: _OBJECT_BEGIN _OBJECT_END 			{ $$.v = make(map[string]Value) }
 			| _OBJECT_BEGIN _MEMBERS _OBJECT_END 	{ $$ = $2 }
 			;
 
-_MEMBERS 	: _PAIR 								{ m := make(map[string]interface{}); p := $1.v.([2]interface{}); m[p[0].(string)] = p[1]; $$.v = m }
-			| _MEMBERS _COMMA _PAIR 				{ m := $1.v.(map[string]interface{}); p := $3.v.([2]interface{}); m[p[0].(string)] = p[1] }
+_MEMBERS 	: _PAIR 								{ m := make(map[string]Value); p := $1.v.([2]Value); m[p[0].(string)] = p[1]; $$.v = m }
+			| _MEMBERS _COMMA _PAIR 				{ m := $1.v.(map[string]Value); p := $3.v.([2]Value); m[p[0].(string)] = p[1] }
 			;
 
-_PAIR 		: _STRING _EQUAL _VALUE 				{ $$.v = [2]interface{}{$1.v, $3.v} }
-			| _IDENTIFIER _EQUAL _VALUE 			{ $$.v = [2]interface{}{$1.v, $3.v} }
+_PAIR 		: _STRING _EQUAL _VALUE 				{ $$.v = [2]Value{$1.v, $3.v} }
+			| _IDENTIFIER _EQUAL _VALUE 			{ $$.v = [2]Value{$1.v, $3.v} }
 			;
 
-_ARRAY 		: _ARRAY_BEGIN _ARRAY_END  				{ $$.v = make([]interface{}, 0) }
+_ARRAY 		: _ARRAY_BEGIN _ARRAY_END  				{ $$.v = make([]Value, 0) }
 			| _ARRAY_BEGIN _ELEMENTS _ARRAY_END 	{ $$ = $2 }
 			;
 
-_ELEMENTS	: _VALUE 								{ s := make([]interface{}, 0, 1); s = append(s, $1.v); $$.v = s }
-			| _ELEMENTS _COMMA _VALUE 				{ $$.v = append($1.v.([]interface{}), $3.v) }
+_ELEMENTS	: _VALUE 								{ s := make([]Value, 0, 1); s = append(s, $1.v); $$.v = s }
+			| _ELEMENTS _COMMA _VALUE 				{ $$.v = append($1.v.([]Value), $3.v) }
 			;
 
 _VALUE		: _STRING

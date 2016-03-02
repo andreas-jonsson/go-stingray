@@ -1,10 +1,10 @@
-/[ \t\n]/               { }
-/[0-9]+/                { i, _ := strconv.Atoi(yylex.Text()); lval.v = float64(i); return _NUMBER }
-/[0-9]+\.[0-9]*/        { lval.v, _ = strconv.ParseFloat(yylex.Text(), 64); return _NUMBER }
-/true|false/            { lval.v = (yylex.Text() == "true"); return _BOOLEAN }
-/null/                  { lval.v = nil; return _NULL }
-/[a-z][a-z0-9]*/        { lval.v = yylex.Text(); return _IDENTIFIER }
-/\"([^\\\"]|\\.)*\"/    { t := yylex.Text(); lval.v = t[1:len(t) - 1]; return _STRING }
+/[ \t\n]/                                   { }
+/\-?[0-9]+/                                 { i, _ := strconv.Atoi(yylex.Text()); lval.v = float64(i); return _NUMBER }
+/[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/    { lval.v, _ = strconv.ParseFloat(yylex.Text(), 64); return _NUMBER }
+/true|false/                                { lval.v = (yylex.Text() == "true"); return _BOOLEAN }
+/null/                                      { lval.v = nil; return _NULL }
+/[a-z][a-z0-9]*/                            { lval.v = yylex.Text(); return _IDENTIFIER }
+/\"([^\\\"]|\\.)*\"/                        { t := yylex.Text(); lval.v = t[1:len(t) - 1]; return _STRING }
 
 /=/     { return _EQUAL }
 /,/     { return _COMMA }
@@ -40,10 +40,7 @@ import (
     "fmt"
 )
 
-// Represents a SJSON value.
-type Value interface{}
-
-// Decodes a SJSON value from the stream.
+//Decode decodes a SJSON value from the stream.
 func Decode(lex *Lexer) (Value, error) {
     var err error
     v := func() interface{} {

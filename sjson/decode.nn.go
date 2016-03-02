@@ -193,51 +193,56 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 			},
 		}, []int{ /* Start-of-input transitions */ -1, -1}, []int{ /* End-of-input transitions */ -1, -1}, nil},
 
-		// [0-9]+
-		{[]bool{false, true}, []func(rune) int{ // Transitions
-			func(r rune) int {
-				switch {
-				case 48 <= r && r <= 57:
-					return 1
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch {
-				case 48 <= r && r <= 57:
-					return 1
-				}
-				return -1
-			},
-		}, []int{ /* Start-of-input transitions */ -1, -1}, []int{ /* End-of-input transitions */ -1, -1}, nil},
-
-		// [0-9]+\.[0-9]*
-		{[]bool{false, false, true, true}, []func(rune) int{ // Transitions
+		// \-?[0-9]+
+		{[]bool{false, false, true}, []func(rune) int{ // Transitions
 			func(r rune) int {
 				switch r {
-				case 46:
-					return -1
+				case 45:
+					return 1
 				}
 				switch {
 				case 48 <= r && r <= 57:
-					return 1
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch r {
-				case 46:
 					return 2
 				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 45:
+					return -1
+				}
 				switch {
 				case 48 <= r && r <= 57:
+					return 2
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 45:
+					return -1
+				}
+				switch {
+				case 48 <= r && r <= 57:
+					return 2
+				}
+				return -1
+			},
+		}, []int{ /* Start-of-input transitions */ -1, -1, -1}, []int{ /* End-of-input transitions */ -1, -1, -1}, nil},
+
+		// [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?
+		{[]bool{false, false, false, true, false, false, true, true}, []func(rune) int{ // Transitions
+			func(r rune) int {
+				switch r {
+				case 43:
 					return 1
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch r {
+				case 45:
+					return 1
 				case 46:
+					return 2
+				case 69:
+					return -1
+				case 101:
 					return -1
 				}
 				switch {
@@ -248,7 +253,15 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 			},
 			func(r rune) int {
 				switch r {
+				case 43:
+					return -1
+				case 45:
+					return -1
 				case 46:
+					return 2
+				case 69:
+					return -1
+				case 101:
 					return -1
 				}
 				switch {
@@ -257,7 +270,121 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 				}
 				return -1
 			},
-		}, []int{ /* Start-of-input transitions */ -1, -1, -1, -1}, []int{ /* End-of-input transitions */ -1, -1, -1, -1}, nil},
+			func(r rune) int {
+				switch r {
+				case 43:
+					return -1
+				case 45:
+					return -1
+				case 46:
+					return -1
+				case 69:
+					return -1
+				case 101:
+					return -1
+				}
+				switch {
+				case 48 <= r && r <= 57:
+					return 7
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 43:
+					return -1
+				case 45:
+					return -1
+				case 46:
+					return 2
+				case 69:
+					return 4
+				case 101:
+					return 4
+				}
+				switch {
+				case 48 <= r && r <= 57:
+					return 3
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 43:
+					return 5
+				case 45:
+					return 5
+				case 46:
+					return -1
+				case 69:
+					return -1
+				case 101:
+					return -1
+				}
+				switch {
+				case 48 <= r && r <= 57:
+					return 6
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 43:
+					return -1
+				case 45:
+					return -1
+				case 46:
+					return -1
+				case 69:
+					return -1
+				case 101:
+					return -1
+				}
+				switch {
+				case 48 <= r && r <= 57:
+					return 6
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 43:
+					return -1
+				case 45:
+					return -1
+				case 46:
+					return -1
+				case 69:
+					return -1
+				case 101:
+					return -1
+				}
+				switch {
+				case 48 <= r && r <= 57:
+					return 6
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 43:
+					return -1
+				case 45:
+					return -1
+				case 46:
+					return -1
+				case 69:
+					return 4
+				case 101:
+					return 4
+				}
+				switch {
+				case 48 <= r && r <= 57:
+					return 7
+				}
+				return -1
+			},
+		}, []int{ /* Start-of-input transitions */ -1, -1, -1, -1, -1, -1, -1, -1}, []int{ /* End-of-input transitions */ -1, -1, -1, -1, -1, -1, -1, -1}, nil},
 
 		// true|false
 		{[]bool{false, false, false, false, false, true, false, false, false, true}, []func(rune) int{ // Transitions
@@ -872,10 +999,6 @@ OUTER0:
 
 	return 0
 }
-
-type Value interface{}
-
-// Decodes a SJSON value from the stream.
 func Decode(lex *Lexer) (Value, error) {
 	var err error
 	v := func() interface{} {
