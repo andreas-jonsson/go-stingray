@@ -29,14 +29,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/andreas-jonsson/go-stingray/data-server"
 	"github.com/andreas-jonsson/go-stingray/data-server/storage"
 )
 
 const (
-	defaultPort       = 14099
-	infoPort          = 14098
-	broadPort         = 14097
-	magicHeader       = "REMOTE_CACHE_V_2"
 	versionString     = "2.1.0"
 	defaultBufferSize = 10 * 1024 * 1034
 )
@@ -83,7 +80,7 @@ func main() {
 		log.Println("database closed")
 	}()
 
-	udpCon, tcpList := setupListeners(broadPort, defaultPort)
+	udpCon, tcpList := setupListeners(server.BroadcastPort, server.DefaultPort)
 	defer tcpList.Close()
 	defer udpCon.Close()
 
@@ -157,14 +154,14 @@ func clientDownload(s storage.Session, tcpCon *net.TCPConn, buffer []byte, reque
 func serveClient(tcpCon *net.TCPConn) {
 	defer tcpCon.Close()
 
-	headerSize := len(magicHeader) + 1
+	headerSize := len(server.ProtocolHeader) + 1
 	headerBuffer := make([]byte, headerSize)
 
 	tcpCon.SetDeadline(time.Now().Add(time.Second))
 	size, err := tcpCon.Read(headerBuffer)
 
 	ip := tcpCon.RemoteAddr().String()
-	if err != nil || string(headerBuffer[:size-1]) != magicHeader {
+	if err != nil || string(headerBuffer[:size-1]) != server.ProtocolHeader {
 		log.Println("could not validate protocol used by", ip)
 	} else {
 		log.Println("connection established to", ip)
@@ -216,12 +213,12 @@ func listenForConnections(tcpList *net.TCPListener) {
 }
 
 func listenForBroadcasts(udpCon *net.UDPConn) {
-	headerSize := len(magicHeader) + 1
+	headerSize := len(server.ProtocolHeader) + 1
 	buffer := make([]byte, headerSize)
 	for atomic.LoadInt32(&running) == 1 {
 		udpCon.SetDeadline(time.Now().Add(time.Second))
 		if size, remote, err := udpCon.ReadFromUDP(buffer[:]); err == nil {
-			if magic := string(buffer[:size-1]); magic == magicHeader {
+			if magic := string(buffer[:size-1]); magic == server.ProtocolHeader {
 				go sendBroadcastResponse(remote)
 			} else {
 				log.Println(remote, "invalid protocol", magic)
@@ -231,11 +228,11 @@ func listenForBroadcasts(udpCon *net.UDPConn) {
 }
 
 func sendBroadcastResponse(addr *net.UDPAddr) {
-	log.Printf("reply on broadcast to %s:%d\n", addr.IP, infoPort)
-	if udpCon, err := net.Dial("udp", fmt.Sprintf("%s:%d", addr.IP, infoPort)); err != nil {
+	log.Printf("reply on broadcast to %s:%d\n", addr.IP, server.InfoPort)
+	if udpCon, err := net.Dial("udp", fmt.Sprintf("%s:%d", addr.IP, server.InfoPort)); err != nil {
 		log.Println(err)
 	} else {
-		data := []byte(magicHeader)
+		data := []byte(server.ProtocolHeader)
 		data = append(data, 0)
 		udpCon.SetDeadline(time.Now().Add(time.Second))
 		udpCon.Write(data)
