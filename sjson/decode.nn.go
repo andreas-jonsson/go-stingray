@@ -766,6 +766,24 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 			},
 		}, []int{ /* Start-of-input transitions */ -1, -1}, []int{ /* End-of-input transitions */ -1, -1}, nil},
 
+		// :
+		{[]bool{false, true}, []func(rune) int{ // Transitions
+			func(r rune) int {
+				switch r {
+				case 58:
+					return 1
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 58:
+					return -1
+				}
+				return -1
+			},
+		}, []int{ /* Start-of-input transitions */ -1, -1}, []int{ /* End-of-input transitions */ -1, -1}, nil},
+
 		// ,
 		{[]bool{false, true}, []func(rune) int{ // Transitions
 			func(r rune) int {
@@ -968,25 +986,29 @@ OUTER0:
 			}
 		case 8:
 			{
-				return _COMMA
+				return _COLON
 			}
 		case 9:
 			{
-				return _ARRAY_BEGIN
+				return _COMMA
 			}
 		case 10:
 			{
-				return _ARRAY_END
+				return _ARRAY_BEGIN
 			}
 		case 11:
 			{
-				return _OBJECT_BEGIN
+				return _ARRAY_END
 			}
 		case 12:
 			{
-				return _OBJECT_END
+				return _OBJECT_BEGIN
 			}
 		case 13:
+			{
+				return _OBJECT_END
+			}
+		case 14:
 			{
 				panic(fmt.Errorf("unrecognized character: '%v'", yylex.Text()))
 			}

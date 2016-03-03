@@ -6,6 +6,8 @@
 
 	done = false,
 
+	key : "value",
+
 	name = "stingray",
 	"the key" = "squid"
 }

@@ -32,42 +32,54 @@ func Encode(writer io.Writer, v Value) error {
 }
 
 func encodeValue(writer io.Writer, v Value) error {
+	var err error
 	switch v.(type) {
 	case nil:
-		fmt.Fprint(writer, "null")
+		_, err = fmt.Fprint(writer, "null")
 	case int, int8, int16, int32, int64,
 		uint8, uint16, uint32, uint64,
 		float32, float64, bool:
-		fmt.Fprintf(writer, "%v", v)
+		_, err = fmt.Fprintf(writer, "%v", v)
 	case string:
-		fmt.Fprintf(writer, "\"%v\"", v)
+		_, err = fmt.Fprintf(writer, "\"%v\"", v)
 	case []Value:
-		fmt.Fprint(writer, "[")
+		if _, err = fmt.Fprint(writer, "["); err != nil {
+			return err
+		}
 		for i, val := range v.([]Value) {
 			if i > 0 {
-				fmt.Fprint(writer, ",")
+				if _, err = fmt.Fprint(writer, ","); err != nil {
+					return err
+				}
 			}
 			if err := encodeValue(writer, val); err != nil {
 				return err
 			}
 		}
-		fmt.Fprint(writer, "]")
+		_, err = fmt.Fprint(writer, "]")
 	case map[string]Value:
-		fmt.Fprint(writer, "{")
+		if _, err = fmt.Fprint(writer, "{"); err != nil {
+			return err
+		}
+
 		i := 0
 		for k, val := range v.(map[string]Value) {
 			if i > 0 {
-				fmt.Fprint(writer, ",")
+				if _, err = fmt.Fprint(writer, ","); err != nil {
+					return err
+				}
 			}
-			fmt.Fprintf(writer, "\"%v\"=", k)
+			if _, err = fmt.Fprintf(writer, "\"%v\"=", k); err != nil {
+				return err
+			}
 			if err := encodeValue(writer, val); err != nil {
 				return err
 			}
 			i++
 		}
-		fmt.Fprint(writer, "}")
+		_, err = fmt.Fprint(writer, "}")
 	default:
 		return errors.New("invalid type")
 	}
-	return nil
+	return err
 }

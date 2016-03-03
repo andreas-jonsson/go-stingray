@@ -39,6 +39,7 @@ const _ARRAY_BEGIN = 57353
 const _ARRAY_END = 57354
 const _COMMA = 57355
 const _EQUAL = 57356
+const _COLON = 57357
 
 var yyToknames = [...]string{
 	"$end",
@@ -55,6 +56,7 @@ var yyToknames = [...]string{
 	"_ARRAY_END",
 	"_COMMA",
 	"_EQUAL",
+	"_COLON",
 }
 var yyStatenames = [...]string{}
 
@@ -62,7 +64,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line decode.y:63
+//line decode.y:67
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -71,52 +73,55 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 18
+const yyNprod = 20
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 36
+const yyLast = 40
 
 var yyAct = [...]int{
 
-	2, 4, 3, 13, 5, 6, 9, 22, 10, 16,
-	21, 18, 4, 3, 17, 5, 6, 9, 8, 10,
-	14, 15, 26, 27, 25, 28, 23, 24, 19, 14,
-	15, 20, 12, 7, 11, 1,
+	2, 17, 13, 22, 23, 4, 3, 8, 5, 6,
+	9, 18, 10, 16, 4, 3, 21, 5, 6, 9,
+	12, 10, 28, 27, 7, 29, 1, 30, 25, 26,
+	19, 0, 24, 20, 14, 15, 14, 15, 0, 11,
 }
 var yyPact = [...]int{
 
-	8, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, 24,
-	-3, -1000, 18, -1000, -4, -7, -1000, 14, -1000, -1000,
-	15, 8, 8, -1000, 8, -1000, -1000, -1000, -1000,
+	10, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, 29,
+	1, -1000, 20, -1000, -11, -11, -1000, 16, -1000, -1000,
+	31, 10, -1000, -1000, 10, -1000, 10, -1000, -1000, -1000,
+	-1000,
 }
 var yyPgo = [...]int{
 
-	0, 35, 0, 33, 32, 3, 18, 14,
+	0, 26, 0, 24, 20, 2, 16, 7, 1,
 }
 var yyR1 = [...]int{
 
 	0, 1, 3, 3, 4, 4, 5, 5, 6, 6,
-	7, 7, 2, 2, 2, 2, 2, 2,
+	7, 7, 8, 8, 2, 2, 2, 2, 2, 2,
 }
 var yyR2 = [...]int{
 
-	0, 1, 2, 3, 1, 3, 3, 3, 2, 3,
-	1, 3, 1, 1, 1, 1, 1, 1,
+	0, 1, 2, 3, 1, 3, 3, 3, 1, 1,
+	2, 3, 1, 3, 1, 1, 1, 1, 1, 1,
 }
 var yyChk = [...]int{
 
-	-1000, -1, -2, 5, 4, 7, 8, -3, -6, 9,
-	11, 10, -4, -5, 5, 6, 12, -7, -2, 10,
-	13, 14, 14, 12, 13, -5, -2, -2, -2,
+	-1000, -1, -2, 5, 4, 7, 8, -3, -7, 9,
+	11, 10, -4, -5, 5, 6, 12, -8, -2, 10,
+	13, -6, 14, 15, -6, 12, 13, -5, -2, -2,
+	-2,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 12, 13, 14, 15, 16, 17, 0,
-	0, 2, 0, 4, 0, 0, 8, 0, 10, 3,
-	0, 0, 0, 9, 0, 5, 6, 7, 11,
+	0, -2, 1, 14, 15, 16, 17, 18, 19, 0,
+	0, 2, 0, 4, 0, 0, 10, 0, 12, 3,
+	0, 0, 8, 9, 0, 11, 0, 5, 6, 7,
+	13,
 }
 var yyTok1 = [...]int{
 
@@ -125,7 +130,7 @@ var yyTok1 = [...]int{
 var yyTok2 = [...]int{
 
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-	12, 13, 14,
+	12, 13, 14, 15,
 }
 var yyTok3 = [...]int{
 	0,
@@ -516,35 +521,40 @@ yydefault:
 		{
 			yyVAL.v = [2]Value{yyDollar[1].v, yyDollar[3].v}
 		}
-	case 8:
-		yyDollar = yyS[yypt-2 : yypt+1]
-		//line decode.y:48
-		{
-			yyVAL.v = make([]Value, 0)
-		}
 	case 9:
-		yyDollar = yyS[yypt-3 : yypt+1]
+		yyDollar = yyS[yypt-1 : yypt+1]
 		//line decode.y:49
 		{
-			yyVAL = yyDollar[2]
 		}
 	case 10:
-		yyDollar = yyS[yypt-1 : yypt+1]
+		yyDollar = yyS[yypt-2 : yypt+1]
 		//line decode.y:52
 		{
-			s := make([]Value, 0, 1)
-			s = append(s, yyDollar[1].v)
-			yyVAL.v = s
+			yyVAL.v = make([]Value, 0)
 		}
 	case 11:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		//line decode.y:53
 		{
+			yyVAL = yyDollar[2]
+		}
+	case 12:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line decode.y:56
+		{
+			s := make([]Value, 0, 1)
+			s = append(s, yyDollar[1].v)
+			yyVAL.v = s
+		}
+	case 13:
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line decode.y:57
+		{
 			yyVAL.v = append(yyDollar[1].v.([]Value), yyDollar[3].v)
 		}
-	case 17:
+	case 19:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line decode.y:61
+		//line decode.y:65
 		{
 			yyVAL = yyDollar[1]
 		}

@@ -7,6 +7,7 @@
 /\"([^\\\"]|\\.)*\"/                        { t := yylex.Text(); lval.v = t[1:len(t) - 1]; return _STRING }
 
 /=/     { return _EQUAL }
+/:/     { return _COLON }
 /,/     { return _COMMA }
 /\[/    { return _ARRAY_BEGIN }
 /\]/    { return _ARRAY_END }

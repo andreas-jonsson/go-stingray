@@ -26,7 +26,7 @@ package sjson
 %token _NUMBER _STRING _IDENTIFIER _BOOLEAN _NULL
 
 %left _OBJECT_BEGIN _OBJECT_END _ARRAY_BEGIN _ARRAY_END
-%left _COMMA _EQUAL
+%left _COMMA _EQUAL _COLON
 
 %%
 
@@ -41,8 +41,12 @@ _MEMBERS 	: _PAIR 								{ m := make(map[string]Value); p := $1.v.([2]Value); m
 			| _MEMBERS _COMMA _PAIR 				{ m := $1.v.(map[string]Value); p := $3.v.([2]Value); m[p[0].(string)] = p[1] }
 			;
 
-_PAIR 		: _STRING _EQUAL _VALUE 				{ $$.v = [2]Value{$1.v, $3.v} }
-			| _IDENTIFIER _EQUAL _VALUE 			{ $$.v = [2]Value{$1.v, $3.v} }
+_PAIR 		: _STRING _SEP _VALUE 					{ $$.v = [2]Value{$1.v, $3.v} }
+			| _IDENTIFIER _SEP _VALUE 				{ $$.v = [2]Value{$1.v, $3.v} }
+			;
+
+_SEP 		: _EQUAL
+			| _COLON 								{}
 			;
 
 _ARRAY 		: _ARRAY_BEGIN _ARRAY_END  				{ $$.v = make([]Value, 0) }
