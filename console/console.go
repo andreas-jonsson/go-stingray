@@ -82,22 +82,18 @@ func (con *Console) Read() (Message, error) {
 	for {
 		val, err := sjson.Decode(con.lex)
 		if err != nil {
-			return msg, errors.New("could not decode message")
+			return msg, err
 		}
 
 		m := val.(map[string]sjson.Value)
-		if m["type"].(string) != "message" {
-			continue
+		if m["type"].(string) == "message" {
+			msg.System = m["system"].(string)
+			msg.Message = m["message"].(string)
+			msg.MessageType = m["message_type"].(string)
+			msg.Level = m["level"].(string)
+			return msg, err
 		}
-
-		msg.System = m["system"].(string)
-		msg.Message = m["message"].(string)
-		msg.MessageType = m["message_type"].(string)
-		msg.Level = m["level"].(string)
-		break
 	}
-
-	return msg, err
 }
 
 func (con *Console) Write(ty CommandType, command string) error {

@@ -63,7 +63,7 @@ func main() {
 	for {
 		msg, err := con.Read()
 		if err != nil {
-			con.Close()
+			fmt.Println(err)
 			os.Exit(-1)
 		}
 		fmt.Println(msg)
