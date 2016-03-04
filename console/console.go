@@ -42,10 +42,6 @@ const (
 	DefaultXboxOnePort = 4601
 )
 
-const (
-	socketTimeout = 5
-)
-
 type Message struct {
 	System,
 	Level,
