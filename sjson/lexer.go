@@ -112,7 +112,7 @@ func (lex *Lexer) consumeComment() error {
 				}
 				if buf[0] == '/' {
 					lex.col++
-					_, err := lex.reader.Discard(1)
+					_, err := lex.reader.ReadByte()
 					return err
 				}
 			}
