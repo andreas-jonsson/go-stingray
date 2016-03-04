@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package sjson
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -33,11 +34,13 @@ func TestDecode(t *testing.T) {
 
 	_, err = Decode(lex)
 	if err != nil {
+		fmt.Println(lex)
 		t.Error(err)
 	}
 
 	v, err := Decode(lex)
 	if err != nil {
+		fmt.Println(lex)
 		t.Error(err)
 	}
 

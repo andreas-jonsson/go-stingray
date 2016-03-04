@@ -4,9 +4,15 @@
 		vector = [0, 2, 4]
 	},
 
+	/*
+	ml_comment = true
+	*/
+
 	done = false,
 
 	key : "value",
+
+	// Singel-line comment
 
 	name = "stingray",
 	"the key" = "squid"
