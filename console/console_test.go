@@ -35,7 +35,7 @@ func consoleServer(ws *websocket.Conn) {
 
 func startServer(t *testing.T) {
 	http.Handle("/", websocket.Handler(consoleServer))
-	if err := http.ListenAndServe(fmt.Sprintf(":%v", DefaultPort), nil); err != nil {
+	if err := http.ListenAndServe(":80", nil); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -53,7 +53,7 @@ func receiveAndTest(t *testing.T, con *Console, expected sjson.Value) {
 
 func TestConsole(t *testing.T) {
 	go startServer(t)
-	con, err := NewConsole("localhost", "")
+	con, err := NewConsole("localhost:80", "")
 	if err != nil {
 		t.Fatal(err)
 	}
