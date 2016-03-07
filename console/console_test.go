@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package console
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"reflect"
@@ -35,7 +34,7 @@ func consoleServer(ws *websocket.Conn) {
 
 func startServer(t *testing.T) {
 	http.Handle("/", websocket.Handler(consoleServer))
-	if err := http.ListenAndServe(":80", nil); err != nil {
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -53,7 +52,7 @@ func receiveAndTest(t *testing.T, con *Console, expected sjson.Value) {
 
 func TestConsole(t *testing.T) {
 	go startServer(t)
-	con, err := NewConsole("localhost:80", "")
+	con, err := NewConsole("localhost:8080", "")
 	if err != nil {
 		t.Fatal(err)
 	}
