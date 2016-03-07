@@ -25,7 +25,7 @@ import (
 )
 
 func TestEncode(t *testing.T) {
-	fp, err := os.Open("sjson_test.json")
+	fp, err := os.Open("sjson/sjson_test.json")
 	if err != nil {
 		t.Error(err)
 	}
