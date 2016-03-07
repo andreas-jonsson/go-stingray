@@ -61,7 +61,7 @@ func main() {
 	}
 
 	for {
-		msg, err := con.ReciveMessage()
+		msg, err := con.ReceiveMessage()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)

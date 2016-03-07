@@ -95,7 +95,7 @@ func (con *Console) WriteAll(p []byte) error {
 	return nil
 }
 
-func (con *Console) Recive() (sjson.Value, error) {
+func (con *Console) Receive() (sjson.Value, error) {
 	val, err := sjson.Decode(con.lex)
 	if err != nil {
 		return val, err
@@ -103,7 +103,7 @@ func (con *Console) Recive() (sjson.Value, error) {
 	return val, nil
 }
 
-func (con *Console) ReciveMessage() (Message, error) {
+func (con *Console) ReceiveMessage() (Message, error) {
 	var (
 		err error
 		msg Message
