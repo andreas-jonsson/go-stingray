@@ -42,6 +42,76 @@ const (
 	DefaultXboxOnePort = 4601
 )
 
+func marshalMessage(v interface{}) ([]byte, byte, error) {
+	return v.([]byte), websocket.TextFrame, nil
+}
+
+func unmarshalMessage(data []byte, ty byte, v interface{}) error {
+	switch ty {
+	case websocket.BinaryFrame:
+		return nil
+	case websocket.TextFrame:
+		var err error
+		lex := sjson.NewLexer(bytes.NewReader(data))
+
+		val, err := sjson.Decode(lex)
+		if err != nil {
+			return err
+		}
+
+		defer func() {
+			if r := recover(); r != nil {
+				err = errors.New("invalid message")
+			}
+		}()
+
+		msg := v.(*Message)
+		m := val.(map[string]sjson.Value)
+
+		if m["type"].(string) == "message" {
+			msg.System = m["system"].(string)
+			msg.Message = m["message"].(string)
+			msg.MessageType = m["message_type"].(string)
+			msg.Level = m["level"].(string)
+			return err
+		}
+
+		return err
+	default:
+		return errors.New("unknown message")
+	}
+}
+
+func unmarshalFrameData(data []byte, ty byte, v interface{}) error {
+	fd := v.(*frameData)
+
+	switch ty {
+	case websocket.BinaryFrame:
+		fd.data = data
+	case websocket.TextFrame:
+		lex := sjson.NewLexer(bytes.NewReader(data))
+		val, err := sjson.Decode(lex)
+		if err != nil {
+			return err
+		}
+		fd.obj = val
+	default:
+		return errors.New("unknown message")
+	}
+
+	return nil
+}
+
+var (
+	consoleMessageCodec   = websocket.Codec{Marshal: marshalMessage, Unmarshal: unmarshalMessage}
+	consoleFrameDataCodec = websocket.Codec{Marshal: nil, Unmarshal: unmarshalFrameData}
+)
+
+type frameData struct {
+	data []byte
+	obj  sjson.Value
+}
+
 type Message struct {
 	System,
 	Level,
@@ -63,44 +133,10 @@ type Console struct {
 	host string
 }
 
-func (con *Console) Read(p []byte) (int, error) {
-	return con.ws.Read(p)
-}
-
-func (con *Console) Write(p []byte) (int, error) {
-	return con.ws.Write(p)
-}
-
-func (con *Console) ReadAll(p []byte) error {
-	lp := len(p)
-	for n := 0; n < lp; {
-		num, err := con.ws.Read(p[n:lp])
-		if err != nil {
-			return err
-		}
-		n += num
-	}
-	return nil
-}
-
-func (con *Console) WriteAll(p []byte) error {
-	lp := len(p)
-	for n := 0; n < lp; {
-		num, err := con.ws.Write(p[n:lp])
-		if err != nil {
-			return err
-		}
-		n += num
-	}
-	return nil
-}
-
-func (con *Console) Receive() (sjson.Value, error) {
-	val, err := sjson.Decode(con.lex)
-	if err != nil {
-		return val, err
-	}
-	return val, nil
+func (con *Console) Receive() (sjson.Value, []byte, error) {
+	fd := frameData{}
+	err := consoleFrameDataCodec.Receive(con.ws, &fd)
+	return fd.obj, fd.data, err
 }
 
 func (con *Console) ReceiveMessage() (Message, error) {
@@ -115,29 +151,13 @@ func (con *Console) ReceiveMessage() (Message, error) {
 		}
 	}()
 
-	for {
-		val, err := con.Receive()
-		if err != nil {
-			return msg, err
-		}
-
-		m := val.(map[string]sjson.Value)
-		if m["type"].(string) == "message" {
-			msg.System = m["system"].(string)
-			msg.Message = m["message"].(string)
-			msg.MessageType = m["message_type"].(string)
-			msg.Level = m["level"].(string)
+	for msg.MessageType == "" {
+		if err := consoleMessageCodec.Receive(con.ws, &msg); err != nil {
 			return msg, err
 		}
 	}
-}
 
-func (con *Console) Send(msg sjson.Value) error {
-	var buf bytes.Buffer
-	if err := sjson.Encode(&buf, msg); err != nil {
-		return err
-	}
-	return con.WriteAll(buf.Bytes())
+	return msg, nil
 }
 
 func (con *Console) SendCommand(ty CommandType, command string) error {
@@ -165,7 +185,7 @@ func (con *Console) SendCommand(ty CommandType, command string) error {
 		return errors.New("invalid command type")
 	}
 
-	return con.WriteAll(buf.Bytes())
+	return consoleMessageCodec.Send(con.ws, buf.Bytes())
 }
 
 func (con *Console) SetDeadline(t time.Time) {

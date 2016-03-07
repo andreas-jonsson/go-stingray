@@ -40,7 +40,7 @@ func startServer(t *testing.T) {
 }
 
 func receiveAndTest(t *testing.T, con *Console, expected sjson.Value) {
-	msg, err := con.Receive()
+	msg, _, err := con.Receive()
 	if err != nil {
 		t.Fatal(err)
 	}
