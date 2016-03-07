@@ -63,7 +63,47 @@ type Console struct {
 	host string
 }
 
-func (con *Console) Read() (Message, error) {
+func (con *Console) Read(p []byte) (int, error) {
+	return con.ws.Read(p)
+}
+
+func (con *Console) Write(p []byte) (int, error) {
+	return con.ws.Write(p)
+}
+
+func (con *Console) ReadAll(p []byte) error {
+	lp := len(p)
+	for n := 0; n < lp; {
+		num, err := con.ws.Read(p[n:lp])
+		if err != nil {
+			return err
+		}
+		n += num
+	}
+	return nil
+}
+
+func (con *Console) WriteAll(p []byte) error {
+	lp := len(p)
+	for n := 0; n < lp; {
+		num, err := con.ws.Write(p[n:lp])
+		if err != nil {
+			return err
+		}
+		n += num
+	}
+	return nil
+}
+
+func (con *Console) Recive() (sjson.Value, error) {
+	val, err := sjson.Decode(con.lex)
+	if err != nil {
+		return val, err
+	}
+	return val, nil
+}
+
+func (con *Console) ReciveMessage() (Message, error) {
 	var (
 		err error
 		msg Message
@@ -92,7 +132,15 @@ func (con *Console) Read() (Message, error) {
 	}
 }
 
-func (con *Console) Write(ty CommandType, command string) error {
+func (con *Console) Send(msg sjson.Value) error {
+	var buf bytes.Buffer
+	if err := sjson.Encode(&buf, msg); err != nil {
+		return err
+	}
+	return con.WriteAll(buf.Bytes())
+}
+
+func (con *Console) SendCommand(ty CommandType, command string) error {
 	var buf bytes.Buffer
 
 	switch ty {
@@ -117,16 +165,7 @@ func (con *Console) Write(ty CommandType, command string) error {
 		return errors.New("invalid command type")
 	}
 
-	data := buf.Bytes()
-	for n := 0; n < len(data); {
-		num, err := con.ws.Write(buf.Bytes())
-		if err != nil {
-			return err
-		}
-		n += num
-	}
-
-	return nil
+	return con.WriteAll(buf.Bytes())
 }
 
 func (con *Console) SetDeadline(t time.Time) {
@@ -141,7 +180,7 @@ func (con *Console) Close() {
 	con.ws.Close()
 }
 
-func NewConsole(host string) (*Console, error) {
+func NewConsole(host, protocol string) (*Console, error) {
 	h, p, err := net.SplitHostPort(host)
 	if err != nil {
 		h = host
@@ -149,7 +188,7 @@ func NewConsole(host string) (*Console, error) {
 	}
 
 	addr := net.JoinHostPort(h, p)
-	url := fmt.Sprintf("ws://%s", addr)
+	url := fmt.Sprintf("ws://%s/%s", addr, protocol)
 	ws, err := websocket.Dial(url, "", "http://"+h)
 	if err != nil {
 		return nil, err

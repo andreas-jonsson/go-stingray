@@ -47,7 +47,7 @@ func main() {
 	fmt.Printf("Copyright (C) 2016 Andreas T Jonsson\n\n")
 
 	fmt.Printf("connecting to %s...\n", hostAddress)
-	con, err := console.NewConsole(hostAddress)
+	con, err := console.NewConsole(hostAddress, "")
 	if err != nil {
 		fmt.Println("could not connect to: " + hostAddress)
 		os.Exit(-1)
@@ -61,7 +61,7 @@ func main() {
 	}
 
 	for {
-		msg, err := con.Read()
+		msg, err := con.ReciveMessage()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
@@ -90,7 +90,7 @@ func processInput(con *console.Console) {
 				line = line[1:]
 			}
 
-			if err := con.Write(ty, line); err != nil {
+			if err := con.SendCommand(ty, line); err != nil {
 				fmt.Println(err)
 				os.Exit(-1)
 			}
