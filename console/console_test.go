@@ -33,15 +33,26 @@ func consoleServer(ws *websocket.Conn) {
 	io.Copy(ws, ws)
 }
 
-func startServer() {
+func startServer(t *testing.T) {
 	http.Handle("/", websocket.Handler(consoleServer))
 	if err := http.ListenAndServe(fmt.Sprintf(":%v", DefaultPort), nil); err != nil {
-		panic(err)
+		t.Fatal(err)
+	}
+}
+
+func receiveAndTest(t *testing.T, con *Console, expected sjson.Value) {
+	msg, err := con.Receive()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(msg, expected) {
+		t.Fail()
 	}
 }
 
 func TestConsole(t *testing.T) {
-	go startServer()
+	go startServer(t)
 	con, err := NewConsole("localhost", "")
 	if err != nil {
 		t.Fatal(err)
@@ -54,13 +65,12 @@ func TestConsole(t *testing.T) {
 
 	args := []sjson.Value{"arg1", "arg2", "arg3"}
 	cmd := map[string]sjson.Value{"type": "command", "command": "test", "arg": args}
+	receiveAndTest(t, con, cmd)
 
-	msg, err := con.Receive()
-	if err != nil {
+	if err := con.SendCommand(Script, "test"); err != nil {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(msg, cmd) {
-		t.Fail()
-	}
+	cmd = map[string]sjson.Value{"type": "script", "script": "test"}
+	receiveAndTest(t, con, cmd)
 }

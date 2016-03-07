@@ -116,7 +116,7 @@ func (con *Console) ReceiveMessage() (Message, error) {
 	}()
 
 	for {
-		val, err := sjson.Decode(con.lex)
+		val, err := con.Receive()
 		if err != nil {
 			return msg, err
 		}
