@@ -26,10 +26,11 @@ import (
 	"github.com/andreas-jonsson/go-stingray/console"
 )
 
-var (
+var arguments struct {
 	hostAddress,
 	inputFile string
-)
+	quiet bool
+}
 
 func init() {
 	flag.Usage = func() {
@@ -37,33 +38,41 @@ func init() {
 		flag.PrintDefaults()
 	}
 
-	flag.StringVar(&hostAddress, "host", "localhost", "host address, address:[port]")
-	flag.StringVar(&inputFile, "input", "", "input file, '-' for stdin")
+	flag.StringVar(&arguments.hostAddress, "host", "localhost", "host address, address:[port]")
+	flag.StringVar(&arguments.inputFile, "input", "", "input file, '-' for stdin")
+	flag.BoolVar(&arguments.quiet, "q", false, "quiet, don't print any extra information")
 }
 
 func main() {
 	flag.Parse()
-	fmt.Println("Stingray Console")
-	fmt.Printf("Copyright (C) 2016 Andreas T Jonsson\n\n")
+	q := arguments.quiet
+	host := arguments.hostAddress
 
-	fmt.Printf("connecting to %s...\n", hostAddress)
-	con, err := console.NewConsole(hostAddress, "")
+	if !q {
+		fmt.Println("Stingray Console")
+		fmt.Printf("Copyright (C) 2016 Andreas T Jonsson\n\n")
+		fmt.Printf("connecting to %s...\n", host)
+	}
+
+	con, err := console.NewConsole(host, "")
 	if err != nil {
-		fmt.Println("could not connect to: " + hostAddress)
+		fmt.Fprintln(os.Stderr, "could not connect to: "+host)
 		os.Exit(-1)
 	}
 
 	defer con.Close()
-	fmt.Println("connected")
+	if !q {
+		fmt.Println("connected")
+	}
 
-	if inputFile != "" {
+	if arguments.inputFile != "" {
 		go processInput(con)
 	}
 
 	for {
 		msg, err := con.ReceiveMessage()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			os.Exit(-1)
 		}
 		fmt.Println(msg)
@@ -74,9 +83,10 @@ func processInput(con *console.Console) {
 	var err error
 	fp := os.Stdin
 
-	if inputFile != "-" {
-		if fp, err = os.Open(inputFile); err != nil {
-			fmt.Println("could not open: " + inputFile)
+	file := arguments.inputFile
+	if file != "-" {
+		if fp, err = os.Open(file); err != nil {
+			fmt.Fprintln(os.Stderr, "could not open: "+file)
 			os.Exit(-1)
 		}
 	}
@@ -91,7 +101,7 @@ func processInput(con *console.Console) {
 			}
 
 			if err := con.SendCommand(ty, line); err != nil {
-				fmt.Println(err)
+				fmt.Fprintln(os.Stderr, err)
 				os.Exit(-1)
 			}
 		}
