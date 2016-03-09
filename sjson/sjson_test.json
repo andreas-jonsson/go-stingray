@@ -15,7 +15,7 @@
 	// Singel-line comment
 
 	name = "stingray",
-	"the key" = "squid"
+	"the key" = "squid \"fish\""
 }
 
 "next object"

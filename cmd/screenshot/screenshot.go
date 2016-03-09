@@ -42,6 +42,7 @@ func init() {
 
 	flag.StringVar(&arguments.hostAddress, "host", "localhost", "host address, address:[port]")
 	flag.StringVar(&arguments.outputPath, "output", "screenshot.png", "write image to file")
+	flag.IntVar(&arguments.scale, "scale", 1, "screen-buffer multiplier")
 }
 
 func errorln(msg ...interface{}) {
@@ -60,15 +61,22 @@ func main() {
 	fmt.Println("Stingray Hi-Res Screenshot")
 	fmt.Printf("Copyright (C) 2016 Andreas T Jonsson\n\n")
 
-	fmt.Printf("connecting to %s...\n", arguments.hostAddress)
+	if arguments.scale < 1 || arguments.scale > 32 {
+		errorln("invalid scale value")
+	}
 
+	fmt.Printf("connecting to %s...\n", arguments.hostAddress)
 	con, err := console.NewConsole(arguments.hostAddress, "")
 	assertln(err, "could not connect to: "+arguments.hostAddress)
 	defer con.Close()
 
 	fmt.Println("connected")
 
-	err = con.SendCommand(console.Script, fmt.Sprintf("FrameCapture.replay_jittered_frame(\"console_send\",nil,%d)", arguments.scale))
+	cmd := fmt.Sprintf("FrameCapture.replay_jittered_frame('console_send',nil,%v,nil)", arguments.scale)
+	fmt.Println(cmd)
+	sjson.Encode(os.Stdout, cmd)
+
+	err = con.SendCommand(console.Script, cmd)
 	assertln(err, err)
 
 	defer func() {
@@ -78,6 +86,7 @@ func main() {
 	}()
 
 	var capture *frameCapture
+	fmt.Println("waiting for response...")
 
 	for {
 		_, data, err := con.Receive()

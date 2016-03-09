@@ -209,6 +209,7 @@ func NewConsole(host, protocol string) (*Console, error) {
 
 	addr := net.JoinHostPort(h, p)
 	url := fmt.Sprintf("ws://%s/%s", addr, protocol)
+
 	ws, err := websocket.Dial(url, "", "http://"+h)
 	if err != nil {
 		return nil, err
