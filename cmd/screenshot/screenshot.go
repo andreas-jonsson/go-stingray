@@ -21,7 +21,11 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io"
+	"math"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/andreas-jonsson/go-stingray/console"
 	"github.com/andreas-jonsson/go-stingray/sjson"
@@ -42,6 +46,8 @@ func init() {
 	flag.StringVar(&arguments.hostAddress, "host", "localhost", "host address, address:[port]")
 	flag.StringVar(&arguments.outputPath, "output", "screenshot.png", "write image to file")
 	flag.IntVar(&arguments.scale, "scale", 1, "screen-buffer multiplier")
+
+	rand.Seed(time.Now().UnixNano())
 }
 
 func errorln(msg ...interface{}) {
@@ -55,7 +61,37 @@ func assertln(err error, msg ...interface{}) {
 	}
 }
 
-func transfer(con *console.Console) *frameCapture {
+func transferThumbnail(con *console.Console, writer io.Writer, id int) {
+	defer func() {
+		if r := recover(); r != nil {
+			errorln("received corrupt data")
+		}
+	}()
+
+	for {
+		_, data, err := con.Receive()
+		assertln(err, err)
+
+		if len(data) == 0 {
+			continue
+		}
+
+		lex := sjson.NewLexer(bytes.NewBuffer(data))
+		obj, err := sjson.Decode(lex)
+		assertln(err, err)
+
+		m := obj.(map[string]sjson.Value)
+		if m["type"].(string) != "thumbnail" || int(m["id"].(float64)) != id {
+			continue
+		}
+
+		_, err = lex.Reader().WriteTo(writer)
+		assertln(err, err)
+		return
+	}
+}
+
+func transferJittered(con *console.Console) *frameCapture {
 	defer func() {
 		if r := recover(); r != nil {
 			errorln("received corrupt data")
@@ -71,8 +107,8 @@ func transfer(con *console.Console) *frameCapture {
 			continue
 		}
 
-		reader := bytes.NewBuffer(data)
-		obj, err := sjson.Decode(sjson.NewLexer(reader))
+		lex := sjson.NewLexer(bytes.NewBuffer(data))
+		obj, err := sjson.Decode(lex)
 		assertln(err, err)
 
 		m := obj.(map[string]sjson.Value)
@@ -80,6 +116,7 @@ func transfer(con *console.Console) *frameCapture {
 			continue
 		}
 
+		reader := lex.Reader()
 		b, err := reader.ReadByte()
 		assertln(err, err)
 		if b != 0 {
@@ -102,7 +139,11 @@ func transfer(con *console.Console) *frameCapture {
 			capture = newFrameCapture(id, numTaps, stride)
 		}
 
-		if err := capture.addTap(tap, reader.Bytes()); err != nil {
+		var buf bytes.Buffer
+		_, err = reader.WriteTo(&buf)
+		assertln(err, err)
+
+		if err := capture.addTap(tap, buf.Bytes()); err != nil {
 			errorln(err)
 		}
 	}
@@ -126,17 +167,31 @@ func main() {
 
 	fmt.Println("connected")
 
-	cmd := fmt.Sprintf("FrameCapture.replay_jittered_frame('console_send',nil,%v,nil)", arguments.scale)
-	err = con.SendCommand(console.Script, cmd)
-	assertln(err, err)
+	if arguments.scale == 1 {
+		id := rand.Intn(math.MaxInt32)
+		cmd := fmt.Sprintf("FrameCapture.thumbnail(ConsoleServer.current_client_id(),nil,'back_buffer',%v,Renderer.back_buffer_size())", id)
+		err = con.SendCommand(console.Script, cmd)
+		assertln(err, err)
 
-	fmt.Println("waiting for response...")
-	capture := transfer(con)
+		fp, err := os.Create(arguments.outputPath)
+		assertln(err, err)
+		defer fp.Close()
 
-	if err := capture.save(arguments.outputPath); err != nil {
-		errorln(err)
+		fmt.Println("waiting for thumbnail...")
+		transferThumbnail(con, fp, id)
+	} else {
+		cmd := fmt.Sprintf("FrameCapture.replay_jittered_frame('console_send',nil,%v,nil)", arguments.scale)
+		err = con.SendCommand(console.Script, cmd)
+		assertln(err, err)
+
+		fmt.Println("waiting for taps...")
+		capture := transferJittered(con)
+
+		if err := capture.save(arguments.outputPath); err != nil {
+			errorln(err)
+		}
 	}
 
-	fmt.Println("compleat")
+	fmt.Println("complete")
 	fmt.Println("output written to: " + arguments.outputPath)
 }

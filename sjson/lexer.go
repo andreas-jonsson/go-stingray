@@ -272,6 +272,10 @@ start:
 	return _IDENTIFIER
 }
 
+func (lex *Lexer) Reader() *bufio.Reader {
+	return lex.reader
+}
+
 func (lex *Lexer) Error(s string) {
 	if lex.err == nil {
 		lex.err = errors.New(s)
