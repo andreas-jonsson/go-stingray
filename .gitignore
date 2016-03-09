@@ -26,3 +26,5 @@ _testmain.go
 *.output
 
 *.db
+
+cmd/screenshot/screenshot.png

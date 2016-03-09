@@ -22,7 +22,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/andreas-jonsson/go-stingray/console"
 	"github.com/andreas-jonsson/go-stingray/sjson"
@@ -56,29 +55,7 @@ func assertln(err error, msg ...interface{}) {
 	}
 }
 
-func main() {
-	flag.Parse()
-	fmt.Println("Stingray Hi-Res Screenshot")
-	fmt.Printf("Copyright (C) 2016 Andreas T Jonsson\n\n")
-
-	if arguments.scale < 1 || arguments.scale > 32 {
-		errorln("invalid scale value")
-	}
-
-	fmt.Printf("connecting to %s...\n", arguments.hostAddress)
-	con, err := console.NewConsole(arguments.hostAddress, "")
-	assertln(err, "could not connect to: "+arguments.hostAddress)
-	defer con.Close()
-
-	fmt.Println("connected")
-
-	cmd := fmt.Sprintf("FrameCapture.replay_jittered_frame('console_send',nil,%v,nil)", arguments.scale)
-	fmt.Println(cmd)
-	sjson.Encode(os.Stdout, cmd)
-
-	err = con.SendCommand(console.Script, cmd)
-	assertln(err, err)
-
+func transfer(con *console.Console) *frameCapture {
 	defer func() {
 		if r := recover(); r != nil {
 			errorln("received corrupt data")
@@ -86,9 +63,7 @@ func main() {
 	}()
 
 	var capture *frameCapture
-	fmt.Println("waiting for response...")
-
-	for {
+	for capture == nil || !capture.isComplete() {
 		_, data, err := con.Receive()
 		assertln(err, err)
 
@@ -111,8 +86,8 @@ func main() {
 			errorln("invalid binary message")
 		}
 
-		id, _ := strconv.Atoi(m["id"].(string))
-		tap, _ := strconv.Atoi(m["tap"].(string))
+		id := int(m["id"].(float64))
+		tap := int(m["tap"].(float64))
 		format, _ := m["surface_format"].(string)
 
 		if format != "R8G8B8A8" {
@@ -122,22 +97,46 @@ func main() {
 		if capture == nil {
 			fmt.Println("transfer image...")
 
-			numTaps, _ := strconv.Atoi(m["num_taps"].(string))
-			stride, _ := strconv.Atoi(m["stride"].(string))
+			numTaps := int(m["num_taps"].(float64))
+			stride := int(m["stride"].(float64))
 			capture = newFrameCapture(id, numTaps, stride)
 		}
 
 		if err := capture.addTap(tap, reader.Bytes()); err != nil {
 			errorln(err)
 		}
-
-		if capture.isComplete() {
-			if err := capture.save(arguments.outputPath); err != nil {
-				errorln(err)
-			}
-
-			fmt.Println("compleat")
-			return
-		}
 	}
+
+	return capture
+}
+
+func main() {
+	flag.Parse()
+	fmt.Println("Stingray Hi-Res Screenshot")
+	fmt.Printf("Copyright (C) 2016 Andreas T Jonsson\n\n")
+
+	if arguments.scale < 1 || arguments.scale > 32 {
+		errorln("invalid scale value")
+	}
+
+	fmt.Printf("connecting to %s...\n", arguments.hostAddress)
+	con, err := console.NewConsole(arguments.hostAddress, "")
+	assertln(err, "could not connect to: "+arguments.hostAddress)
+	defer con.Close()
+
+	fmt.Println("connected")
+
+	cmd := fmt.Sprintf("FrameCapture.replay_jittered_frame('console_send',nil,%v,nil)", arguments.scale)
+	err = con.SendCommand(console.Script, cmd)
+	assertln(err, err)
+
+	fmt.Println("waiting for response...")
+	capture := transfer(con)
+
+	if err := capture.save(arguments.outputPath); err != nil {
+		errorln(err)
+	}
+
+	fmt.Println("compleat")
+	fmt.Println("output written to: " + arguments.outputPath)
 }

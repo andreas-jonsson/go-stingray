@@ -54,7 +54,7 @@ func (fc *frameCapture) scale() int {
 
 func (fc *frameCapture) geometry() (int, int) {
 	scale := fc.scale()
-	return scale * fc.stride, scale * len(fc.taps) / (bytesPerPixel * fc.stride)
+	return scale * fc.stride, scale * len(fc.taps[0]) / (bytesPerPixel * fc.stride)
 }
 
 func (fc *frameCapture) addTap(tap int, data []byte) error {
@@ -80,8 +80,11 @@ func (fc *frameCapture) writeLine(line int, data []byte) {
 }
 
 func (fc *frameCapture) compose() {
-	scale := fc.scale()
 	width, height := fc.geometry()
+	rect := image.Rect(0, 0, width, height)
+	fc.image = image.NewRGBA(rect)
+
+	scale := fc.scale()
 	lineData := make([]byte, width*bytesPerPixel)
 
 	for line := 0; line < height; line++ {
