@@ -80,12 +80,19 @@ func transferThumbnail(con *console.Console, writer io.Writer, id int) {
 		obj, err := sjson.Decode(lex)
 		assertln(err, err)
 
+		reader := lex.Reader()
+		b, err := reader.ReadByte()
+		assertln(err, err)
+		if b != 0 {
+			errorln("invalid binary message")
+		}
+
 		m := obj.(map[string]sjson.Value)
 		if m["type"].(string) != "thumbnail" || int(m["id"].(float64)) != id {
 			continue
 		}
 
-		_, err = lex.Reader().WriteTo(writer)
+		_, err = reader.WriteTo(writer)
 		assertln(err, err)
 		return
 	}
@@ -132,12 +139,12 @@ func transferJittered(con *console.Console) *frameCapture {
 		}
 
 		if capture == nil {
-			fmt.Println("transfer image...")
-
 			numTaps := int(m["num_taps"].(float64))
 			stride := int(m["stride"].(float64))
 			capture = newFrameCapture(id, numTaps, stride)
 		}
+
+		fmt.Printf("tap %v/%v\n", tap, capture.numTaps)
 
 		var buf bytes.Buffer
 		_, err = reader.WriteTo(&buf)
@@ -169,7 +176,7 @@ func main() {
 
 	if arguments.scale == 1 {
 		id := rand.Intn(math.MaxInt32)
-		cmd := fmt.Sprintf("FrameCapture.thumbnail(ConsoleServer.current_client_id(),nil,'back_buffer',%v,Renderer.back_buffer_size())", id)
+		cmd := fmt.Sprintf("s3d.FrameCapture.thumbnail(s3d.ConsoleServer.current_client_id(),nil,'back_buffer',%v,s3d.Application.back_buffer_size())", id)
 		err = con.SendCommand(console.Script, cmd)
 		assertln(err, err)
 
@@ -180,7 +187,7 @@ func main() {
 		fmt.Println("waiting for thumbnail...")
 		transferThumbnail(con, fp, id)
 	} else {
-		cmd := fmt.Sprintf("FrameCapture.replay_jittered_frame('console_send',nil,%v,nil)", arguments.scale)
+		cmd := fmt.Sprintf("s3d.FrameCapture.replay_jittered_frame('console_send',nil,%v,nil)", arguments.scale)
 		err = con.SendCommand(console.Script, cmd)
 		assertln(err, err)
 
