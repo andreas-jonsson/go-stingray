@@ -25,3 +25,7 @@ var logo = `
  /_______  /|__| |__|___|  /\___  /|__|  (____  / ____|
          \/              \//_____/            \/\/
 `
+
+var notice = " This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\n" +
+	" This is free software, and you are welcome to redistribute it\n" +
+	" under certain conditions; type `show c' for details.\n\n"

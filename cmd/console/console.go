@@ -112,6 +112,7 @@ func layout(g *gocui.Gui) error {
 
 		fmt.Fprint(v, logo)
 		fmt.Fprintf(v, "        Copyright (C) 2016 Andreas T Jonsson\n\n")
+		fmt.Fprint(v, notice)
 
 		v.FgColor = gocui.ColorWhite
 		v.Title = "disconnected"
