@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strconv"
 )
 
 //Value represents a SJSON value.
@@ -41,7 +42,7 @@ func encodeValue(writer io.Writer, v Value) error {
 		float32, float64, bool:
 		_, err = fmt.Fprintf(writer, "%v", v)
 	case string:
-		_, err = fmt.Fprintf(writer, "\"%v\"", v)
+		_, err = fmt.Fprint(writer, strconv.Quote(v.(string)))
 	case []Value:
 		if _, err = fmt.Fprint(writer, "["); err != nil {
 			return err

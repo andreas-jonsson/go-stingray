@@ -185,7 +185,7 @@ func (lex *Lexer) readString() (string, error) {
 				return "", nil
 			}
 		} else if r == '"' {
-			return buf.String(), nil
+			return strconv.Unquote(fmt.Sprintf("\"%s\"", buf.String()))
 		} else {
 			if _, err := buf.WriteRune(r); err != nil {
 				return "", nil
