@@ -22,6 +22,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -135,14 +137,38 @@ func layout(g *gocui.Gui) error {
 	return nil
 }
 
+func showLicense() {
+	url := "https://raw.githubusercontent.com/andreas-jonsson/go-stingray/master/LICENSE"
+	res, err := http.Get(url)
+	if err != nil {
+		println(url)
+		return
+	}
+	defer res.Body.Close()
+
+	license, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		println(url)
+		return
+	}
+
+	println(string(license))
+}
+
 func setupInputKeybindings(con *console.Console) {
 	g.Execute(func(g *gocui.Gui) error {
 		enter := func(g *gocui.Gui, v *gocui.View) error {
 			str := strings.TrimSpace(v.Buffer())
-			if len(str) > 0 {
-				printf("> %s\n", str)
-				assertErrln(executeCommand(con, str))
+			switch str {
+			case "show c", "show w":
+				showLicense()
+			default:
+				if len(str) > 0 {
+					printf("> %s\n", str)
+					assertErrln(executeCommand(con, str))
+				}
 			}
+
 			v.Clear()
 			return nil
 		}
@@ -254,7 +280,7 @@ func init() {
 
 	flag.StringVar(&arguments.hostAddress, "host", "localhost", "host address, address:[port]")
 	flag.StringVar(&arguments.inputFile, "input", "", "input file, '-' for stdin")
-	flag.BoolVar(&arguments.quiet, "q", false, "quiet, don't print any extra information")
+	flag.BoolVar(&arguments.quiet, "q", false, "no GUI, pipe-only")
 }
 
 func main() {
