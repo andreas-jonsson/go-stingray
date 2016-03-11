@@ -6,6 +6,8 @@
 
 This repository contains some tools and Go libraries, useful for communicating with Autodesk's Stingray game-engine.
 
+![console](https://raw.githubusercontent.com/andreas-jonsson/go-stingray/master/assets/console.png)
+
 ### Tools
 
 ```
