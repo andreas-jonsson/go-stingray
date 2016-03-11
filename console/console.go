@@ -121,7 +121,7 @@ type Message struct {
 
 func (m Message) String() string {
 	if m.System == "" {
-		return m.Message
+		return "[?] " + m.Message
 	} else {
 		return fmt.Sprintf("[%s] %s", m.System, m.Message)
 	}
