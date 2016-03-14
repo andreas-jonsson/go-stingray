@@ -25,29 +25,24 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/andreas-jonsson/go-stingray/console"
 	"github.com/jroimartin/gocui"
 )
 
-var (
-	g *gocui.Gui
-
-	arguments struct {
-		hostAddress,
-		inputFile string
-		quiet bool
-	}
-)
+var arguments struct {
+	hostAddress,
+	inputFile string
+	quiet bool
+}
 
 func errorln(msg ...interface{}) {
 	if arguments.quiet {
 		fmt.Fprintln(os.Stderr, msg...)
 		os.Exit(-1)
 	} else {
-		g.Execute(func(g *gocui.Gui) error {
+		goCUI.Execute(func(g *gocui.Gui) error {
 			g.Close()
 			fmt.Fprintln(os.Stderr, msg...)
 			os.Exit(-1)
@@ -77,66 +72,6 @@ func printf(f string, msg ...interface{}) {
 	doPrint(f, msg)
 }
 
-func doPrint(f string, msg []interface{}) {
-	if !arguments.quiet {
-		g.Execute(func(g *gocui.Gui) error {
-			v, err := g.View("top")
-			if err != nil {
-				return err
-			}
-			fmt.Fprint(v, " ")
-			if f == "" {
-				fmt.Fprintln(v, msg...)
-			} else {
-				fmt.Fprintf(v, f, msg...)
-			}
-			return nil
-		})
-	}
-}
-
-func setTitle(f string, a ...interface{}) {
-	g.Execute(func(g *gocui.Gui) error {
-		v, _ := g.View("top")
-		v.Title = fmt.Sprintf(f, a...)
-		return nil
-	})
-}
-
-func layout(g *gocui.Gui) error {
-	const inputHeight = 3
-
-	maxX, maxY := g.Size()
-	if v, err := g.SetView("top", 0, 0, maxX-1, maxY-inputHeight); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
-
-		fmt.Fprint(v, logo)
-		fmt.Fprintf(v, "        Copyright (C) 2016 Andreas T Jonsson\n\n")
-		fmt.Fprint(v, notice)
-
-		v.FgColor = gocui.ColorWhite
-		v.Title = "disconnected"
-		v.Autoscroll = true
-		v.Wrap = false
-	}
-
-	if v, err := g.SetView("bottom", 0, maxY-inputHeight, maxX-1, maxY-1); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
-
-		if err := g.SetCurrentView("bottom"); err != nil {
-			return err
-		}
-
-		v.FgColor = gocui.ColorWhite
-	}
-
-	return nil
-}
-
 func showLicense() {
 	url := "https://raw.githubusercontent.com/andreas-jonsson/go-stingray/master/LICENSE"
 	res, err := http.Get(url)
@@ -153,79 +88,6 @@ func showLicense() {
 	}
 
 	println(string(license))
-}
-
-func setupInputKeybindings(con *console.Console) {
-	g.Execute(func(g *gocui.Gui) error {
-		enter := func(g *gocui.Gui, v *gocui.View) error {
-			str := strings.TrimSpace(v.Buffer())
-			switch str {
-			case "show c", "show w":
-				showLicense()
-			default:
-				if len(str) > 0 {
-					printf("> %s\n", str)
-					assertErrln(executeCommand(con, str))
-				}
-			}
-
-			v.Clear()
-			return nil
-		}
-
-		v, err := g.View("bottom")
-		assertErrln(err)
-		v.Editable = true
-
-		assertErrln(g.SetKeybinding("bottom", gocui.KeyEnter, gocui.ModNone, enter))
-		return nil
-	})
-}
-
-func setupKeybindings() {
-	quit := func(*gocui.Gui, *gocui.View) error {
-		return gocui.ErrQuit
-	}
-	assertErrln(g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit))
-}
-
-func gui() {
-	g = gocui.NewGui()
-	if err := g.Init(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(-1)
-	}
-	defer g.Close()
-
-	g.FgColor = gocui.ColorCyan
-	g.BgColor = gocui.ColorBlue
-	g.Cursor = true
-	g.SetLayout(layout)
-	setupKeybindings()
-
-	go func() {
-		host := arguments.hostAddress
-		printf("connecting to %s...\n", host)
-
-		con, err := console.NewConsole(host, "")
-		assertln(err, errors.New("could not connect to host"))
-		defer con.Close()
-
-		println("connected")
-		setTitle(host)
-		setupInputKeybindings(con)
-
-		for {
-			msg, err := con.ReceiveMessage()
-			assertErrln(err)
-			println(msg)
-
-		}
-	}()
-
-	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
-		errorln(err)
-	}
 }
 
 func quiet() {
