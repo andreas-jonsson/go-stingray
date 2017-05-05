@@ -27,4 +27,10 @@ _testmain.go
 
 *.db
 
+plugin/loader/sdk/**/*.h
+plugin/loader/sdk/**/*.inl
+plugin/loader/sdk/CMakeLists.txt
+
 cmd/screenshot/screenshot.png
+
+plugin/loader\.h

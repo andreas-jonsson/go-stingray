@@ -17,19 +17,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package main
 
-// #include "sdk/engine_plugin_api/plugin_api.h"
+/*
+#include "sdk/engine_plugin_api/plugin_api.h"
+
+typedef struct PluginApi PluginApi;
+*/
 import "C"
+
 import (
 	"unsafe"
 )
 
+type PluginApi C.PluginApi
+
+var pluginApi PluginApi
+
+var pluginName = C.CString("golang_plugin_loader")
+
+//export GetName
+func GetName() *C.char {
+	return pluginName
+}
+
 //export get_plugin_api
 func get_plugin_api(api C.unsigned) unsafe.Pointer {
 	if api == C.PLUGIN_API_ID {
-		var api C.PluginApi
-		api.get_name = get_name
-		api.setup_game = setup_game
-		return &api
+		f := GetName
+		pluginApi.get_name = (*[0]byte)(unsafe.Pointer(&f))
+		return unsafe.Pointer(&pluginApi)
 	}
 	return nil
 }
