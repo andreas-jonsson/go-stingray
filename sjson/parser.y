@@ -38,6 +38,7 @@ _OBJECT 	: _OBJECT_BEGIN _OBJECT_END 			{ $$.v = make(map[string]Value) }
 			;
 
 _MEMBERS 	: _PAIR 								{ m := make(map[string]Value); p := $1.v.([2]Value); m[p[0].(string)] = p[1]; $$.v = m }
+			| _MEMBERS _PAIR						{ m := $1.v.(map[string]Value); p := $2.v.([2]Value); m[p[0].(string)] = p[1] }
 			| _MEMBERS _COMMA _PAIR 				{ m := $1.v.(map[string]Value); p := $3.v.([2]Value); m[p[0].(string)] = p[1] }
 			;
 
@@ -54,6 +55,7 @@ _ARRAY 		: _ARRAY_BEGIN _ARRAY_END  				{ $$.v = make([]Value, 0) }
 			;
 
 _ELEMENTS	: _VALUE 								{ s := make([]Value, 0, 1); s = append(s, $1.v); $$.v = s }
+			| _ELEMENTS _VALUE						{ $$.v = append($1.v.([]Value), $2.v) }
 			| _ELEMENTS _COMMA _VALUE 				{ $$.v = append($1.v.([]Value), $3.v) }
 			;
 

@@ -1,4 +1,4 @@
-//line parser.y:1
+//line .\parser.y:1
 
 /*
 Copyright (C) 2016 Andreas T Jonsson
@@ -21,8 +21,8 @@ package sjson
 
 import __yyfmt__ "fmt"
 
-//line parser.y:19
-//line parser.y:22
+//line .\parser.y:19
+//line .\parser.y:22
 type yySymType struct {
 	yys int
 	v   Value
@@ -64,7 +64,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line parser.y:67
+//line .\parser.y:69
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -73,55 +73,55 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 20
 const yyPrivate = 57344
 
-var yyTokenNames []string
-var yyStates []string
-
-const yyLast = 40
+const yyLast = 53
 
 var yyAct = [...]int{
 
-	2, 17, 13, 22, 23, 4, 3, 8, 5, 6,
-	9, 18, 10, 16, 4, 3, 21, 5, 6, 9,
-	12, 10, 28, 27, 7, 29, 1, 30, 25, 26,
-	19, 0, 24, 20, 14, 15, 14, 15, 0, 11,
+	2, 22, 13, 23, 24, 4, 3, 17, 5, 6,
+	9, 18, 10, 26, 28, 20, 8, 25, 27, 12,
+	14, 15, 7, 30, 29, 11, 31, 4, 3, 32,
+	5, 6, 9, 1, 10, 16, 4, 3, 0, 5,
+	6, 9, 0, 10, 14, 15, 14, 15, 0, 19,
+	0, 0, 21,
 }
 var yyPact = [...]int{
 
-	10, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, 29,
-	1, -1000, 20, -1000, -11, -11, -1000, 16, -1000, -1000,
-	31, 10, -1000, -1000, 10, -1000, 10, -1000, -1000, -1000,
-	-1000,
+	32, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, 15,
+	23, -1000, 39, -1000, -11, -11, -1000, 1, -1000, -1000,
+	-1000, 41, 32, -1000, -1000, 32, -1000, -1000, 32, -1000,
+	-1000, -1000, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 26, 0, 24, 20, 2, 16, 7, 1,
+	0, 33, 0, 22, 19, 2, 1, 16, 7,
 }
 var yyR1 = [...]int{
 
-	0, 1, 3, 3, 4, 4, 5, 5, 6, 6,
-	7, 7, 8, 8, 2, 2, 2, 2, 2, 2,
+	0, 1, 3, 3, 4, 4, 4, 5, 5, 6,
+	6, 7, 7, 8, 8, 8, 2, 2, 2, 2,
+	2, 2,
 }
 var yyR2 = [...]int{
 
-	0, 1, 2, 3, 1, 3, 3, 3, 1, 1,
-	2, 3, 1, 3, 1, 1, 1, 1, 1, 1,
+	0, 1, 2, 3, 1, 2, 3, 3, 3, 1,
+	1, 2, 3, 1, 2, 3, 1, 1, 1, 1,
+	1, 1,
 }
 var yyChk = [...]int{
 
 	-1000, -1, -2, 5, 4, 7, 8, -3, -7, 9,
 	11, 10, -4, -5, 5, 6, 12, -8, -2, 10,
-	13, -6, 14, 15, -6, 12, 13, -5, -2, -2,
-	-2,
+	-5, 13, -6, 14, 15, -6, 12, -2, 13, -5,
+	-2, -2, -2,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 14, 15, 16, 17, 18, 19, 0,
-	0, 2, 0, 4, 0, 0, 10, 0, 12, 3,
-	0, 0, 8, 9, 0, 11, 0, 5, 6, 7,
-	13,
+	0, -2, 1, 16, 17, 18, 19, 20, 21, 0,
+	0, 2, 0, 4, 0, 0, 11, 0, 13, 3,
+	5, 0, 0, 9, 10, 0, 12, 14, 0, 6,
+	7, 8, 15,
 }
 var yyTok1 = [...]int{
 
@@ -475,26 +475,26 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:33
+		//line .\parser.y:33
 		{
 			yylex.(*Lexer).parseResult = yyDollar[1].v
 			return 0
 		}
 	case 2:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line parser.y:36
+		//line .\parser.y:36
 		{
 			yyVAL.v = make(map[string]Value)
 		}
 	case 3:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.y:37
+		//line .\parser.y:37
 		{
 			yyVAL = yyDollar[2]
 		}
 	case 4:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:40
+		//line .\parser.y:40
 		{
 			m := make(map[string]Value)
 			p := yyDollar[1].v.([2]Value)
@@ -502,59 +502,73 @@ yydefault:
 			yyVAL.v = m
 		}
 	case 5:
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line .\parser.y:41
+		{
+			m := yyDollar[1].v.(map[string]Value)
+			p := yyDollar[2].v.([2]Value)
+			m[p[0].(string)] = p[1]
+		}
+	case 6:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.y:41
+		//line .\parser.y:42
 		{
 			m := yyDollar[1].v.(map[string]Value)
 			p := yyDollar[3].v.([2]Value)
 			m[p[0].(string)] = p[1]
 		}
-	case 6:
-		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.y:44
-		{
-			yyVAL.v = [2]Value{yyDollar[1].v, yyDollar[3].v}
-		}
 	case 7:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.y:45
+		//line .\parser.y:45
 		{
 			yyVAL.v = [2]Value{yyDollar[1].v, yyDollar[3].v}
 		}
-	case 9:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:49
+	case 8:
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line .\parser.y:46
 		{
+			yyVAL.v = [2]Value{yyDollar[1].v, yyDollar[3].v}
 		}
 	case 10:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line .\parser.y:50
+		{
+		}
+	case 11:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line parser.y:52
+		//line .\parser.y:53
 		{
 			yyVAL.v = make([]Value, 0)
 		}
-	case 11:
+	case 12:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.y:53
+		//line .\parser.y:54
 		{
 			yyVAL = yyDollar[2]
 		}
-	case 12:
+	case 13:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:56
+		//line .\parser.y:57
 		{
 			s := make([]Value, 0, 1)
 			s = append(s, yyDollar[1].v)
 			yyVAL.v = s
 		}
-	case 13:
+	case 14:
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line .\parser.y:58
+		{
+			yyVAL.v = append(yyDollar[1].v.([]Value), yyDollar[2].v)
+		}
+	case 15:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.y:57
+		//line .\parser.y:59
 		{
 			yyVAL.v = append(yyDollar[1].v.([]Value), yyDollar[3].v)
 		}
-	case 19:
+	case 21:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:65
+		//line .\parser.y:67
 		{
 			yyVAL = yyDollar[1]
 		}
