@@ -67,7 +67,7 @@ func main() {
 	setupSignals()
 
 	log.Println("opening database:", driverFlag, sourceFlag, locklessFlag)
-	database := storage.NewDatabase(driverFlag, sourceFlag, locklessFlag)
+	database = storage.NewDatabase(driverFlag, sourceFlag, locklessFlag)
 
 	defer func() {
 		database.Close()
